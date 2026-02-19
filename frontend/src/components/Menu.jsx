@@ -1,12 +1,36 @@
-import React, { useState } from 'react';
-import { Flame, Leaf } from 'lucide-react';
-import { menuCategories } from '../mock';
+import React, { useState, useEffect } from 'react';
+import { Flame, Leaf, ShoppingCart } from 'lucide-react';
+import { menuAPI } from '../api';
+import { useCart } from '../context/CartContext';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Button } from './ui/button';
+import { toast } from 'sonner';
 
 const Menu = () => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [menuCategories, setMenuCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
+
+  useEffect(() => {
+    fetchMenu();
+  }, []);
+
+  const fetchMenu = async () => {
+    try {
+      const response = await menuAPI.getCategories();
+      setMenuCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching menu:', error);
+      toast.error('Failed to load menu');
+      // Fallback to mock data if API fails
+      const { menuCategories: mockCategories } = await import('../mock');
+      setMenuCategories(mockCategories);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getSpicyIcon = (level) => {
     if (level === 'None') return null;
@@ -19,6 +43,26 @@ const Menu = () => {
       </div>
     );
   };
+
+  const handleAddToCart = (item) => {
+    if (!item.available) {
+      toast.error('This item is currently unavailable');
+      return;
+    }
+    addToCart(item, 1);
+  };
+
+  if (loading) {
+    return (
+      <section id="menu" className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <p className="text-lg text-gray-600">Loading menu...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="menu" className="py-20 bg-gray-50">
@@ -67,7 +111,9 @@ const Menu = () => {
                   {category.items.map((item) => (
                     <Card
                       key={item.id}
-                      className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group"
+                      className={`overflow-hidden hover:shadow-lg transition-shadow duration-300 group ${
+                        !item.available ? 'opacity-60' : ''
+                      }`}
                     >
                       {item.image && (
                         <div className="relative h-48 overflow-hidden">
@@ -81,6 +127,11 @@ const Menu = () => {
                               <Leaf className="h-4 w-4 text-white fill-white" />
                             </div>
                           )}
+                          {!item.available && (
+                            <div className="absolute inset-0 bg-gray-900/50 flex items-center justify-center">
+                              <span className="text-white font-bold text-lg">Unavailable</span>
+                            </div>
+                          )}
                         </div>
                       )}
                       <CardContent className="p-5">
@@ -91,12 +142,20 @@ const Menu = () => {
                         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                           {item.description}
                         </p>
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-3">
                           <Badge variant="secondary" className="text-xs">
                             {item.category}
                           </Badge>
                           {getSpicyIcon(item.spicy)}
                         </div>
+                        <Button
+                          onClick={() => handleAddToCart(item)}
+                          disabled={!item.available}
+                          className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                        >
+                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          Add to Cart
+                        </Button>
                       </CardContent>
                     </Card>
                   ))}
@@ -118,7 +177,9 @@ const Menu = () => {
                 {category.items.map((item) => (
                   <Card
                     key={item.id}
-                    className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group"
+                    className={`overflow-hidden hover:shadow-lg transition-shadow duration-300 group ${
+                      !item.available ? 'opacity-60' : ''
+                    }`}
                   >
                     {item.image && (
                       <div className="relative h-48 overflow-hidden">
@@ -132,6 +193,11 @@ const Menu = () => {
                             <Leaf className="h-4 w-4 text-white fill-white" />
                           </div>
                         )}
+                        {!item.available && (
+                          <div className="absolute inset-0 bg-gray-900/50 flex items-center justify-center">
+                            <span className="text-white font-bold text-lg">Unavailable</span>
+                          </div>
+                        )}
                       </div>
                     )}
                     <CardContent className="p-5">
@@ -142,12 +208,20 @@ const Menu = () => {
                       <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                         {item.description}
                       </p>
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-3">
                         <Badge variant="secondary" className="text-xs">
                           {item.category}
                         </Badge>
                         {getSpicyIcon(item.spicy)}
                       </div>
+                      <Button
+                        onClick={() => handleAddToCart(item)}
+                        disabled={!item.available}
+                        className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Add to Cart
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}
