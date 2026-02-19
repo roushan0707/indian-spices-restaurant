@@ -11,7 +11,7 @@ import Footer from './components/Footer';
 import { Toaster } from './components/ui/sonner';
 import './App.css';
 
-function App() {
+const App = () => {
   return (
     <div className="App">
       <Header />
@@ -28,6 +28,6 @@ function App() {
       <Toaster position="top-right" richColors />
     </div>
   );
-}
+};
 
 export default App;
