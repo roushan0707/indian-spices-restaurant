@@ -9,24 +9,27 @@ import BookingForm from './components/BookingForm';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import { Toaster } from './components/ui/sonner';
+import { CartProvider } from './context/CartContext';
 import './App.css';
 
 const App = () => {
   return (
-    <div className="App">
-      <Header />
-      <main>
-        <Hero />
-        <Menu />
-        <About />
-        <Testimonials />
-        <Gallery />
-        <BookingForm />
-        <Contact />
-      </main>
-      <Footer />
-      <Toaster position="top-right" richColors />
-    </div>
+    <CartProvider>
+      <div className="App">
+        <Header />
+        <main>
+          <Hero />
+          <Menu />
+          <About />
+          <Testimonials />
+          <Gallery />
+          <BookingForm />
+          <Contact />
+        </main>
+        <Footer />
+        <Toaster position="top-right" richColors />
+      </div>
+    </CartProvider>
   );
 };
 
