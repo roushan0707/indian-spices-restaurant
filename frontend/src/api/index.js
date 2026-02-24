@@ -10,14 +10,34 @@ const api = axios.create({
   },
 });
 
-// Add token to requests if available
+// Add token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  console.log(
+    `[API] ${config.method?.toUpperCase()} ${config.url}`,
+    config.params ? `| params: ${JSON.stringify(config.params)}` : '',
+    config.data ? `| body: ${JSON.stringify(config.data)}` : ''
+  );
   return config;
 });
+
+// Log responses and errors
+api.interceptors.response.use(
+  (response) => {
+    console.log(`[API] ✅ ${response.status} ${response.config.url}`, response.data);
+    return response;
+  },
+  (error) => {
+    console.error(
+      `[API] ❌ ${error.response?.status} ${error.config?.url}`,
+      '| body:', error.response?.data
+    );
+    return Promise.reject(error);
+  }
+);
 
 // Auth API
 export const authAPI = {
@@ -34,9 +54,27 @@ export const restaurantAPI = {
 // Menu API
 export const menuAPI = {
   getCategories: () => api.get('/menu/categories'),
+
   createCategory: (category) => api.post('/menu/category', category),
-  createItem: (item, categoryId) => api.post(`/menu/item?category_id=${categoryId}`, item),
-  updateItem: (itemId, item) => api.put(`/menu/item/${itemId}`, item),
+
+  // Backend route: POST /menu/item?category_id=<str>
+  // `category_id` is a FastAPI Query param — must be in URL, NOT in body.
+  // Body must only contain MenuItem model fields:
+  //   name, description, price, available, is_vegetarian, is_spicy
+  createItem: (item, categoryId) => {
+    // Strip category_id from body — FastAPI will reject unknown body fields
+    const { category_id, ...bodyFields } = item;
+    return api.post('/menu/item', bodyFields, {
+      params: { category_id: categoryId },
+    });
+  },
+
+  updateItem: (itemId, item) => {
+    // Also strip category_id from update body
+    const { category_id, ...bodyFields } = item;
+    return api.put(`/menu/item/${itemId}`, bodyFields);
+  },
+
   deleteItem: (itemId) => api.delete(`/menu/item/${itemId}`),
 };
 
@@ -45,14 +83,16 @@ export const orderAPI = {
   create: (orderData) => api.post('/orders', orderData),
   getAll: () => api.get('/orders'),
   getById: (orderId) => api.get(`/orders/${orderId}`),
-  updateStatus: (orderId, status) => api.put(`/orders/${orderId}/status?status=${status}`),
+  updateStatus: (orderId, status) =>
+    api.put(`/orders/${orderId}/status`, null, { params: { status } }),
 };
 
 // Booking API
 export const bookingAPI = {
   create: (bookingData) => api.post('/bookings', bookingData),
   getAll: () => api.get('/bookings'),
-  updateStatus: (bookingId, status) => api.put(`/bookings/${bookingId}/status?status=${status}`),
+  updateStatus: (bookingId, status) =>
+    api.put(`/bookings/${bookingId}/status`, null, { params: { status } }),
 };
 
 // Testimonial API

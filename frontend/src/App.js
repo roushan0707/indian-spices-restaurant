@@ -14,6 +14,7 @@ import Checkout from './pages/Checkout';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import OrderSuccess from './pages/OrderSuccess';
+import MenuItemPage from './pages/MenuItemPage';
 import { Toaster } from './components/ui/sonner';
 import { CartProvider } from './context/CartContext';
 import './App.css';
@@ -42,6 +43,7 @@ const App = () => {
         <div className="App">
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/menu/:fixedId" element={<MenuItemPage />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-success" element={<OrderSuccess />} />
             <Route path="/admin/login" element={<AdminLogin />} />

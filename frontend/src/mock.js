@@ -3,13 +3,13 @@
 
 export const restaurantInfo = {
   name: "Indian Spices",
-  tagline: "Authentic Flavors, Heart of Chiraura",
+  tagline: "Authentic Flavors, Taste The Best",
   description: "Located conveniently near AIIMS Patna, serving fresh, aromatic Indian cuisine that feels like home.",
   address: "Chiraura, near AIIMS Hospital, Patna, Bihar",
-  phone: "+91 9876543210",
-  whatsapp: "+919876543210",
+  phone: "+91 7970898670",
+  whatsapp: "+917970898670",
   email: "contact@indianspices.com",
-  hours: "11:00 AM – 11:00 PM",
+  hours: "08:00 AM – 11:00 PM",
   coordinates: {
     lat: 25.6093,
     lng: 85.1376

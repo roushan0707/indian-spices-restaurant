@@ -39,7 +39,10 @@ class MenuItem(BaseModel):
     price: float
     image: Optional[str] = None
     category: str
+    # Updated to match your frontend checkboxes
     spicy: str = "None"
+    is_vegetarian: bool = False  # Matches 'Vegetarian' checkbox
+    is_spicy: bool = False       # Matches 'Spicy' checkbox
     available: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

@@ -119,14 +119,28 @@ async def create_menu_item(item: MenuItem, category_id: str):
     db = get_db()
     from bson import ObjectId
     
+    # 1. Convert the Pydantic model to a dictionary
     item_dict = item.dict(exclude={"id"})
+    
+    # 2. Generate a unique ID for the item
     item_dict["id"] = str(uuid.uuid4())
     
-    await db.menu_categories.update_one(
-        {"_id": ObjectId(category_id)},
-        {"$push": {"items": item_dict}}
-    )
-    return {"message": "Item created", "id": item_dict["id"]}
+    # 3. Ensure the category_id is stored with the item if needed
+    item_dict["category_id"] = category_id
+    
+    # 4. Update the category document by pushing the item into the 'items' list
+    try:
+        result = await db.menu_categories.update_one(
+            {"_id": ObjectId(category_id)},
+            {"$push": {"items": item_dict}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Category not found")
+            
+        return {"message": "Item created successfully", "id": item_dict["id"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/menu/item/{item_id}", dependencies=[Depends(verify_admin)])
 async def update_menu_item(item_id: str, item: MenuItem):
@@ -135,15 +149,16 @@ async def update_menu_item(item_id: str, item: MenuItem):
     item_dict = item.dict(exclude={"id"})
     item_dict["updated_at"] = datetime.utcnow()
     
+    # Use the $ positional operator to update the specific item in the array
     result = await db.menu_categories.update_one(
         {"items.id": item_id},
         {"$set": {"items.$": {**item_dict, "id": item_id}}}
     )
     
-    if result.modified_count == 0:
+    if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Item not found")
     
-    return {"message": "Item updated"}
+    return {"message": "Item updated successfully"}
 
 @router.delete("/menu/item/{item_id}", dependencies=[Depends(verify_admin)])
 async def delete_menu_item(item_id: str):
