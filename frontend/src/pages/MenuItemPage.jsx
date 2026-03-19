@@ -21,11 +21,12 @@ const MenuItemPage = () => {
   const [loading, setLoading] = useState(!location.state?.item);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
+  
+useEffect(() => {
     if (!item) fetchItem();
     else setLoading(false);
     window.scrollTo(0, 0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fixedId]);
 
   const fetchItem = async () => {
