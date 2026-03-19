@@ -6,7 +6,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { toast } from 'sonner';
-
+import { bookingAPI } from '../api';
 const BookingForm = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -26,15 +26,22 @@ const BookingForm = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Mock booking submission - this will be connected to backend later
-    console.log('Booking submitted:', formData);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  try {
+    await bookingAPI.create({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      date: formData.date,
+      time: formData.time,
+      guests: parseInt(formData.guests),
+      special_requests: formData.specialRequest
+    });
     
     toast.success('Booking request submitted successfully! We will confirm shortly.');
     
-    // Reset form
     setFormData({
       name: '',
       email: '',
@@ -44,7 +51,11 @@ const BookingForm = () => {
       guests: '2',
       specialRequest: ''
     });
-  };
+  } catch (error) {
+    toast.error('Failed to submit booking. Please try again.');
+    console.error('Booking error:', error);
+  }
+};
 
   // Get today's date for min attribute
   const today = new Date().toISOString().split('T')[0];
