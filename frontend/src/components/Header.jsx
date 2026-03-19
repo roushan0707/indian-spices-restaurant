@@ -106,7 +106,7 @@ const Header = () => {
 
           {/* Logo */}
           <button onClick={() => scrollToSection('home')} className="flex items-center space-x-2">
-            <div className="text-6xl font-extrabold tracking-tight bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">
+            <div className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">
               Indian Spices
             </div>
           </button>
